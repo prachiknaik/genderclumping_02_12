@@ -20,13 +20,22 @@ tables <- c(rep(c(1:7), 4), c(8, 8))
 class <-as.data.frame(cbind.data.frame(tables, students)) 
 
 #create a single sample and turn into a function
-simulation <- function(data) {
-  seats <- nrow(data)
+# I MADE THE WHOLE THING INTO A SINGLE FUNCTION, JUST GIVE IT THE DATA 
+# AND NUMBER OF REPS AND YOU'LL GET OUR RAW OUTPUT
+clumper <- function(data, reps) {
+  simulation <- function(data) {
+    seats <- nrow(data)
 # grabbing the second column of the data frame  
-  boot <- data[, 2] %>% 
-    sample(seats, replace = FALSE)
-  
+    boot <- data[, 2] %>% 
+      sample(seats, replace = FALSE)
+  }
+  # running the simulation
+  sims <- replicate(reps, simulation(data))
+  output <- cbind(data, sims)
+  return(output)
 }
+
+try <- clumper(class, 100)
 
 # do it 100 times 
 output <- replicate(100, simulation(class))
@@ -34,9 +43,13 @@ output <- replicate(100, simulation(class))
 # bind to the initial table
 class2 <- cbind(class, output)
 
-# summarize
+# summarize by table
 class2 %>% 
   group_by(tables) 
+
+# compare the simulation means to the actual distribution? I'm not sure. 
+# if this is the case, wouldn't it just make sense to compare the actual
+# distribution to the null hypothesis (i.e. every table having 2 m and 2 f)?
 
 ```
 
