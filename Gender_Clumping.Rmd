@@ -15,14 +15,15 @@ library(tidyverse)
 ```{r}
 
 #trying to add column name "gender"
-students <- c(rep("m", 14), rep("f",16))
+# for M & F, 0 = M, 1 = F
+students <- c(rep(0, 14), rep(1,16))
 tables <- c(rep(c(1:7), 4), c(8, 8)) 
 class <-as.data.frame(cbind.data.frame(tables, students)) 
 
 #create a single sample and turn into a function
 # I MADE THE WHOLE THING INTO A SINGLE FUNCTION, JUST GIVE IT THE DATA 
 # AND NUMBER OF REPS AND YOU'LL GET OUR RAW OUTPUT
-clumper <- function(data, reps) {
+clumpr <- function(data, reps) {
   simulation <- function(data) {
     seats <- nrow(data)
 # grabbing the second column of the data frame  
@@ -31,21 +32,34 @@ clumper <- function(data, reps) {
   }
   # running the simulation
   sims <- replicate(reps, simulation(data))
-  output <- cbind(data, sims)
+  raw_output <- cbind(data, sims)
+  output <- raw_output %>% 
+    mutate(avg = rowMeans(select(., 3:ncol(raw_output)))) %>% 
+    select(c(1:2), (ncol(raw_output) + 1))
   return(output)
 }
 
-try <- clumper(class, 100)
-
+# I've commented these steps out bc they're now folded into the "clumpr" function
 # do it 100 times 
-output <- replicate(100, simulation(class))
+# output <- replicate(100, simulation(class))
 
 # bind to the initial table
-class2 <- cbind(class, output)
+# class2 <- cbind(class, output)
 
-# summarize by table
-class2 %>% 
-  group_by(tables) 
+# run the clumpr function
+class_simmed <- clumpr(class, 100)
+
+# average each row in a new column, drop the simulation columns (need to chance col selection if changing number of simulations)
+# NEVERMIND, ADDED THIS TO THE FUNCTION, TOO
+# class_summary <- class_simmed %>% 
+#  mutate(avg = rowMeans(select(., 3:102))) %>% 
+#  select(c(1:2), 103)
+  
+
+# summarize by table to get average of averages for each table
+class_summary <- class_simmed %>% 
+  group_by(tables) %>% 
+  summarise(simavg = mean(avg))
 
 # compare the simulation means to the actual distribution? I'm not sure. 
 # if this is the case, wouldn't it just make sense to compare the actual
