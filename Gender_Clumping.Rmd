@@ -1,0 +1,25 @@
+---
+title: "Gender_Clumping"
+author: "Prachi Naik"
+date: "2/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(janitor)
+library(tidyverse)
+```
+
+```{r}
+
+#trying to add column name "gender"
+class <- c(rep("m", 14), rep("f",16)) %>% 
+  as.data.frame(col.names = c("gender"))
+
+
+
+
+```
+
